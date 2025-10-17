@@ -1,4 +1,4 @@
-package jp.co.zaico.codingtest
+package jp.co.zaico.codingtest.add
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,25 +9,28 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * アイテム追加画面のフラグメント
+ */
 @AndroidEntryPoint
-class SecondFragment : Fragment() {
+class AddFragment: Fragment() {
 
-    private val viewModel: SecondViewModel by viewModels()
+    private val viewModel: AddViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        val inventoryId = arguments?.getString("inventoryId")?.toInt() ?: 0
-        viewModel.load(inventoryId)
-
+    ): View? {
         return ComposeView(context = requireContext()).apply {
             setContent {
                 val uiState by viewModel::uiState
 
-                SecondContents(
-                    uiState = uiState
+                AddContents(
+                    uiState,
+                    onSubmit = { title ->
+                        viewModel.requestCreate(title)
+                    },
                 )
             }
         }

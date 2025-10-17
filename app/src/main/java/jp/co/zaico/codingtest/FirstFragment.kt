@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.os.bundleOf
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import jp.co.zaico.codingtest.databinding.FragmentFirstBinding
+import kotlinx.coroutines.launch
 
 class FirstFragment : Fragment() {
 
@@ -30,11 +32,11 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val _viewModel = FirstViewModel(context!!)
+        val _viewModel = FirstViewModel(requireContext())
 
-        val _layoutManager = LinearLayoutManager(context!!)
+        val _layoutManager = LinearLayoutManager(requireContext())
         val _dividerItemDecoration = DividerItemDecoration(
-            context!!,
+            requireContext(),
             _layoutManager.orientation
         )
         val _adapter = MyAdapter(object : MyAdapter.OnItemClickListener {
@@ -50,10 +52,13 @@ class FirstFragment : Fragment() {
             it.adapter = _adapter
         }
 
-        _viewModel.getInventories().apply {
-            _adapter.submitList(this)
+//        _viewModel.getInventories().apply {
+//            _adapter.submitList(this)
+//        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            val items = _viewModel.getInventories()  // suspend
+            _adapter.submitList(items)
         }
-
     }
 
 }

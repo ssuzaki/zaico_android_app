@@ -28,4 +28,16 @@
             android:name="inventoryId"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/AddFragment"
+        android:name="jp.co.zaico.codingtest.add.AddFragment"
+        android:label="@string/add_fragment_label">
+
+        <action
+            android:id="@+id/action_AddFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+        <argument
+            android:name="inventoryId"
+            app:argType="string" />
+    </fragment>
 </navigation>
