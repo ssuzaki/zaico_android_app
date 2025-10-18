@@ -1,6 +1,7 @@
-package jp.co.zaico.codingtest
+package jp.co.zaico.codingtest.second
 
 import androidx.annotation.DrawableRes
+import jp.co.zaico.codingtest.R
 
 /**
  * Second画面のUIステート

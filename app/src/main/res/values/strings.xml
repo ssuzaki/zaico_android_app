@@ -3,4 +3,5 @@
     <string name="first_fragment_label">在庫一覧</string>
     <string name="second_fragment_label">在庫詳細</string>
     <string name="add_fragment_label">在庫追加</string>
+    <string name="fab_content_description">追加</string>
 </resources>

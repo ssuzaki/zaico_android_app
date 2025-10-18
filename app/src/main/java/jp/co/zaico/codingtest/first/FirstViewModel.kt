@@ -1,4 +1,4 @@
-package jp.co.zaico.codingtest
+package jp.co.zaico.codingtest.first
 
 import android.content.Context
 import androidx.compose.runtime.getValue
@@ -12,6 +12,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
+import jp.co.zaico.codingtest.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,8 +25,14 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.text.Normalizer
 import javax.inject.Inject
 
+/**
+ * 在庫一覧画面用ViewModel
+ * @param context アプリケーションコンテキスト
+ * @param client KtorのHTTPクライアント
+ */
 @HiltViewModel
 class FirstViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -36,7 +43,9 @@ class FirstViewModel @Inject constructor(
         private set
     private val json = Json { ignoreUnknownKeys = true }
 
-    /** 在庫一覧を読み込む（UIはブロックしない） */
+    /**
+     * 在庫一覧を読み込む
+     */
     fun load() {
         viewModelScope.launch {
             uiState = uiState.copy(running = true)
@@ -61,6 +70,7 @@ class FirstViewModel @Inject constructor(
                                 ?: root["items"]?.jsonArray
                                 ?: JsonArray(emptyList())
                         }
+
                         else -> JsonArray(emptyList())
                     }
 
@@ -81,11 +91,19 @@ class FirstViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 検索クエリが変更されたときのfilter処理
+     * @param newQuery 新しい検索クエリ
+     */
     fun onQueryChange(newQuery: String) {
         uiState = uiState.copy(query = newQuery)
         uiState = uiState.copy(itemsFiltered = filteredItems())
     }
 
+    /**
+     * 検索クエリに基づいてアイテムをフィルタリングする
+     * @return フィルタリングされたアイテムのリスト
+     */
     private fun filteredItems(): List<Inventory> {
         val q = normalizeJa(uiState.query)
         return uiState.items.filter { it ->
@@ -95,8 +113,13 @@ class FirstViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 日本語文字列の正規化を行う
+     * @param s 正規化対象の文字列
+     * @return 正規化された文字列
+     */
     private fun normalizeJa(s: String): String {
-        val nk = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFKC).lowercase()
+        val nk = Normalizer.normalize(s, Normalizer.Form.NFKC).lowercase()
         val hira = buildString {
             nk.forEach { ch ->
                 append(

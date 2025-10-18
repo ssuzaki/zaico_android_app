@@ -1,6 +1,5 @@
 package jp.co.zaico.codingtest.add
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -39,10 +38,18 @@ class AddViewModel @Inject constructor(
             uiState = uiState.copy(running = false)
 
             result.onSuccess {
-                Log.d("ssuzaki", "Create succeeded: $it")
+                uiState = uiState.copy(successMessage = "「$title」を作成しました")
             }.onFailure {
-                Log.e("ssuzaki", "Create failed", it)
+                uiState = uiState.copy(errorMessage = "作成に失敗しました：${it.message ?: "不明なエラー"}")
             }
         }
+    }
+
+    /**
+     * ダイアログが閉じられたときの処理
+     */
+    fun onDialogDismiss() {
+        if (uiState.successMessage != null) uiState = uiState.copy(successMessage = null)
+        if (uiState.errorMessage != null) uiState = uiState.copy(errorMessage = null)
     }
 }

@@ -1,4 +1,4 @@
-package jp.co.zaico.codingtest
+package jp.co.zaico.codingtest.second
 
 import android.os.Bundle
 import android.view.LayoutInflater

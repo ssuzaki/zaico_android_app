@@ -1,4 +1,4 @@
-package jp.co.zaico.codingtest
+package jp.co.zaico.codingtest.second
 
 import android.content.Context
 import androidx.compose.runtime.getValue
@@ -12,6 +12,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
+import jp.co.zaico.codingtest.R
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
@@ -49,7 +50,7 @@ class SecondViewModel @Inject constructor (
                     header("Authorization", "Bearer ${context.getString(R.string.api_token)}")
                 }.bodyAsText()
 
-                val obj = Json.parseToJsonElement(jsonText).jsonObject
+                val obj = Json.Default.parseToJsonElement(jsonText).jsonObject
                 val id = obj["id"]?.jsonPrimitive?.intOrNull ?: 0
                 val title = obj["title"]?.jsonPrimitive?.contentOrNull ?: "-"
                 val quantity = obj["quantity"]?.jsonPrimitive?.contentOrNull ?: "-"

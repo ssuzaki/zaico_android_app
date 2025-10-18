@@ -1,4 +1,4 @@
-package jp.co.zaico.codingtest
+package jp.co.zaico.codingtest.first
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import jp.co.zaico.codingtest.R
+import kotlin.getValue
 
 /**
  * 在庫一覧を表示するフラグメント
@@ -36,7 +38,10 @@ class FirstFragment : Fragment() {
                     onSearch = {},
                     onItemClick = { item ->
                         val bundle = bundleOf("inventoryId" to item.id.toString())
-                        findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment, bundle)
+                        findNavController().navigate(
+                            R.id.action_FirstFragment_to_SecondFragment,
+                            bundle
+                        )
                     },
                     onRefresh = { viewModel.load() }
                 )

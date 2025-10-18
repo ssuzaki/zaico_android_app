@@ -12,6 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+/**
+ * 画面中央に表示する進捗インジケーター
+ */
 @Composable
 @Preview
 fun ProgressIndicator() {

@@ -31,6 +31,7 @@ class AddFragment: Fragment() {
                     onSubmit = { title ->
                         viewModel.requestCreate(title)
                     },
+                    onDialogDismiss = { viewModel.onDialogDismiss() }
                 )
             }
         }

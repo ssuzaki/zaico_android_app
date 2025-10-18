@@ -6,6 +6,7 @@ import jp.co.zaico.codingtest.api.InventoryResponseBody
 import jp.co.zaico.codingtest.api.OptionalAttribute
 import jp.co.zaico.codingtest.api.QuantityManagementAttributes
 import jp.co.zaico.codingtest.api.StocktakeAttributes
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -24,6 +25,7 @@ import org.junit.Test
 class InventoryModelsTest {
 
     // 本番設定に合わせる：nullを出力しない、未知キーは無視
+    @OptIn(ExperimentalSerializationApi::class)
     private val json = Json {
         ignoreUnknownKeys = true
         explicitNulls = false
