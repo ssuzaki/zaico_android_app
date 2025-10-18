@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * 在庫詳細画面のフラグメント
+ */
 @AndroidEntryPoint
 class SecondFragment : Fragment() {
 

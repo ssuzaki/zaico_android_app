@@ -1,74 +1,113 @@
 package jp.co.zaico.codingtest
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.int
+import javax.inject.Inject
 
-class FirstViewModel(
-    private val context: Context
+@HiltViewModel
+class FirstViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val client: HttpClient
 ) : ViewModel() {
 
-    // Ktorクライアントは再利用（リーク防止のためViewModelのライフサイクルに紐づける）
-    private val client: HttpClient by lazy {
-        HttpClient(Android) {
-            install(ContentNegotiation) {
-                json(Json { ignoreUnknownKeys = true })
+    var uiState by mutableStateOf(FirstUiState())
+        private set
+    private val json = Json { ignoreUnknownKeys = true }
+
+    /** 在庫一覧を読み込む（UIはブロックしない） */
+    fun load() {
+        viewModelScope.launch {
+            uiState = uiState.copy(running = true)
+
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    val endpoint = context.getString(R.string.api_endpoint)
+                    val token = context.getString(R.string.api_token)
+
+                    val responseText = client.get("$endpoint/api/v1/inventories") {
+                        header("Authorization", "Bearer $token")
+                    }.bodyAsText()
+
+                    val root: JsonElement = json.parseToJsonElement(responseText)
+
+                    // ルートが配列でもオブジェクトでもハンドリング
+                    val array: JsonArray = when (root) {
+                        is JsonArray -> root
+                        is JsonObject -> {
+                            root["inventories"]?.jsonArray
+                                ?: root["data"]?.jsonArray
+                                ?: root["items"]?.jsonArray
+                                ?: JsonArray(emptyList())
+                        }
+                        else -> JsonArray(emptyList())
+                    }
+
+                    array.map { el ->
+                        val obj = el.jsonObject
+                        Inventory(
+                            id = obj["id"]?.jsonPrimitive?.intOrNull ?: 0,
+                            title = obj["title"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                            quantity = obj["quantity"]?.jsonPrimitive?.contentOrNull.orEmpty()
+                        )
+                    }
+                }
+            }.onSuccess { list ->
+                uiState = uiState.copy(items = list, itemsFiltered = list, running = false)
+            }.onFailure { e ->
+                uiState = uiState.copy(running = false, errorMessage = e.message ?: "Error")
             }
         }
     }
 
-    private val json = Json { ignoreUnknownKeys = true }
+    fun onQueryChange(newQuery: String) {
+        uiState = uiState.copy(query = newQuery)
+        uiState = uiState.copy(itemsFiltered = filteredItems())
+    }
 
-    /**
-     * 在庫一覧を取得（UIスレッド非ブロック）
-     * - トップが JsonArray でも JsonObject でも安全に処理
-     * - JsonObject のときは "inventories" / "data" / "items" のいずれかを配列として読む
-     */
-    suspend fun getInventories(): List<Inventory> = withContext(Dispatchers.IO) {
-        val endpoint = context.getString(R.string.api_endpoint)
-        val token = context.getString(R.string.api_token)
+    private fun filteredItems(): List<Inventory> {
+        val q = normalizeJa(uiState.query)
+        return uiState.items.filter { it ->
+            normalizeJa(it.title).contains(q) ||
+                    normalizeJa(it.id.toString()).contains(q) ||
+                    normalizeJa(it.quantity.orEmpty()).contains(q)
+        }
+    }
 
-        val responseText = client.get("$endpoint/api/v1/inventories") {
-            header("Authorization", "Bearer $token")
-        }.bodyAsText()
-
-        val root: JsonElement = json.parseToJsonElement(responseText)
-
-        val array: JsonArray = when (root) {
-            is JsonArray -> root
-            is JsonObject -> {
-                root["inventories"]?.jsonArray
-                    ?: root["data"]?.jsonArray
-                    ?: root["items"]?.jsonArray
-                    ?: JsonArray(emptyList())
+    private fun normalizeJa(s: String): String {
+        val nk = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFKC).lowercase()
+        val hira = buildString {
+            nk.forEach { ch ->
+                append(
+                    when (ch) {
+                        in 'ァ'..'ヶ' -> (ch.code - 0x60).toChar()
+                        'ヴ' -> 'ゔ'
+                        else -> ch
+                    }
+                )
             }
-            else -> JsonArray(emptyList())
         }
-
-        array.map { el ->
-            val obj = el.jsonObject
-            Inventory(
-                id = obj["id"]?.jsonPrimitive?.int ?: 0,
-                title = obj["title"]?.jsonPrimitive?.contentOrNull.orEmpty(),
-                quantity = obj["quantity"]?.jsonPrimitive?.contentOrNull.orEmpty()
-            )
-        }
+        return hira.replace("\\s+".toRegex(), "")
     }
 }

@@ -1,6 +1,7 @@
 package jp.co.zaico.codingtest
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,6 +35,7 @@ fun SecondContents(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.Black)
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {

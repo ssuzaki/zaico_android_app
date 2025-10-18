@@ -95,6 +95,12 @@ dependencies {
     // Coroutines（1.7.3に一本化）
     implementation(libs.kotlinx.coroutines.android)
 
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.compose.icons.core)
+    implementation(libs.compose.icons.extended)
+
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.34.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

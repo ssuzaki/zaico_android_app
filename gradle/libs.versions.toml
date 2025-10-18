@@ -2,6 +2,7 @@
 agp = "8.8.1"
 kotlin = "1.9.24"
 kotlinBom = "1.9.24"
+compose-bom = "2024.10.00"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -58,6 +59,9 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = 
 okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version.ref = "okhttp" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp" }                           # BOMでversion管理
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor" }      # BOMでversion管理
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+compose-icons-core = { module = "androidx.compose.material:material-icons-core" }
+compose-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 
 # kotlinx-serialization 用の Retrofit コンバータ
 retrofit-kotlinx-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "1.0.0" }
